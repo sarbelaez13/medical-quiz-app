@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/medical-quiz-app/static/css/main.b9f7ac5f.css",
+    "main.js": "/medical-quiz-app/static/js/main.c037a8ed.js",
+    "index.html": "/medical-quiz-app/index.html",
+    "main.b9f7ac5f.css.map": "/medical-quiz-app/static/css/main.b9f7ac5f.css.map",
+    "main.c037a8ed.js.map": "/medical-quiz-app/static/js/main.c037a8ed.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b9f7ac5f.css",
+    "static/js/main.c037a8ed.js"
+  ]
+}
