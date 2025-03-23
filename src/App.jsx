@@ -1,14 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import './index.css';
+import React, { useEffect, useState } from 'react';
 import data from './data';
+import './index.css';
 
 function App() {
-  const [questions] = useState(data);
+  const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
   const [answeredQuestions, setAnsweredQuestions] = useState({});
   const [stats, setStats] = useState({ correct: 0, incorrect: 0 });
+
+  // Shuffle function
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  // Initialize questions with random order
+  useEffect(() => {
+    setQuestions(shuffleArray(data));
+  }, []);
 
   const currentQuestion = questions[currentQuestionIndex];
 
@@ -20,16 +35,16 @@ function App() {
 
   const checkAnswer = () => {
     if (!selectedOption) return;
-    
+
     const isCorrect = selectedOption === currentQuestion.respuesta_correcta;
     const newAnsweredQuestions = {
       ...answeredQuestions,
       [currentQuestionIndex]: { selected: selectedOption, isCorrect }
     };
-    
+
     setAnsweredQuestions(newAnsweredQuestions);
     setShowAnswer(true);
-    
+
     setStats({
       correct: isCorrect ? stats.correct + 1 : stats.correct,
       incorrect: !isCorrect ? stats.incorrect + 1 : stats.incorrect
@@ -76,38 +91,38 @@ function App() {
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
         <Header stats={stats} total={questions.length} />
-        
-        <ProgressBar 
-          current={currentQuestionIndex + 1} 
-          total={questions.length} 
-          answered={Object.keys(answeredQuestions).length} 
+
+        <ProgressBar
+          current={currentQuestionIndex + 1}
+          total={questions.length}
+          answered={Object.keys(answeredQuestions).length}
         />
-        
-        <Question 
-          question={currentQuestion} 
-          selectedOption={selectedOption} 
-          onOptionSelect={handleOptionSelect} 
+
+        <Question
+          question={currentQuestion}
+          selectedOption={selectedOption}
+          onOptionSelect={handleOptionSelect}
           showAnswer={showAnswer}
         />
-        
+
         {showAnswer && (
-          <Answer 
-            question={currentQuestion} 
-            selectedOption={selectedOption} 
+          <Answer
+            question={currentQuestion}
+            selectedOption={selectedOption}
           />
         )}
-        
+
         <div className="flex justify-between mt-6">
-          <button 
-            onClick={prevQuestion} 
+          <button
+            onClick={prevQuestion}
             disabled={currentQuestionIndex === 0}
             className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
           >
             Anterior
           </button>
-          
+
           {!showAnswer ? (
-            <button 
+            <button
               onClick={checkAnswer}
               disabled={!selectedOption}
               className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
@@ -115,7 +130,7 @@ function App() {
               Verificar
             </button>
           ) : (
-            <button 
+            <button
               onClick={nextQuestion}
               disabled={currentQuestionIndex === questions.length - 1}
               className="px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50"
@@ -144,7 +159,7 @@ function Header({ stats, total }) {
 
 function ProgressBar({ current, total, answered }) {
   const progress = (answered / total) * 100;
-  
+
   return (
     <div className="mb-4">
       <div className="flex justify-between mb-1">
@@ -152,8 +167,8 @@ function ProgressBar({ current, total, answered }) {
         <span>{Math.round(progress)}% completado</span>
       </div>
       <div className="w-full bg-gray-200 rounded-full h-2.5">
-        <div 
-          className="bg-blue-600 h-2.5 rounded-full" 
+        <div
+          className="bg-blue-600 h-2.5 rounded-full"
           style={{ width: `${progress}%` }}
         ></div>
       </div>
@@ -163,28 +178,25 @@ function ProgressBar({ current, total, answered }) {
 
 function Question({ question, selectedOption, onOptionSelect, showAnswer }) {
   if (!question) return null;
-  
+
   return (
     <div className="mb-6">
       <h2 className="text-xl font-medium mb-4">{question.pregunta}</h2>
       <div className="space-y-2">
         {question.opciones.map((option, index) => (
-          <div 
+          <div
             key={index}
             onClick={() => onOptionSelect(option.charAt(0))}
-            className={`p-3 border rounded cursor-pointer transition ${
-              selectedOption === option.charAt(0) 
-                ? 'border-blue-500 bg-blue-50' 
-                : 'border-gray-300 hover:bg-gray-50'
-            } ${
-              showAnswer && option.charAt(0) === question.respuesta_correcta
+            className={`p-3 border rounded cursor-pointer transition ${selectedOption === option.charAt(0)
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-gray-300 hover:bg-gray-50'
+              } ${showAnswer && option.charAt(0) === question.respuesta_correcta
                 ? 'border-green-500 bg-green-50'
                 : ''
-            } ${
-              showAnswer && selectedOption === option.charAt(0) && selectedOption !== question.respuesta_correcta
+              } ${showAnswer && selectedOption === option.charAt(0) && selectedOption !== question.respuesta_correcta
                 ? 'border-red-500 bg-red-50'
                 : ''
-            }`}
+              }`}
           >
             {option}
           </div>
@@ -196,18 +208,18 @@ function Question({ question, selectedOption, onOptionSelect, showAnswer }) {
 
 function Answer({ question, selectedOption }) {
   const isCorrect = selectedOption === question.respuesta_correcta;
-  
+
   return (
     <div className="mt-4 p-4 border rounded">
       <div className={`font-bold mb-2 ${isCorrect ? 'text-green-600' : 'text-red-600'}`}>
         {isCorrect ? '¡Correcto!' : '¡Incorrecto!'} La respuesta correcta es: {question.respuesta_correcta}
       </div>
-      
+
       <div className="mt-4">
         <h3 className="font-bold mb-2">Explicación:</h3>
         <p className="text-gray-700 whitespace-pre-line">{question.argumento}</p>
       </div>
-      
+
       {question.bibliografia && (
         <div className="mt-4">
           <h3 className="font-bold mb-2">Bibliografía:</h3>
